@@ -8,7 +8,7 @@ Created on Sat Apr  1 16:14:42 2023
 import pygame 
 import random
 
-def no_name():
+def fn_start():
     pygame.init()
     screen_width = 800
     screen_height = 800
@@ -37,7 +37,7 @@ def no_name():
                         return True
                     if x_p > 200 and x_p < 600 and y_p > 450 and y_p < 500:
                         print("setting")
-                    if x_p > 200 and x_p < 600 and y_p > 560 and y_p <610:
+                    if x_p > 200 and x_p < 600 and y_p > 540 and y_p <610:
                         pygame.quit()    
                         return False
                     
@@ -49,7 +49,7 @@ def no_name():
          
     pygame.quit()
 
-def a1(floor,position): # 플레이어의 초기 x,y 위치 / 층 수 / 리스트 속 플레이어 위치
+def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / 층 수 / 리스트 속 플레이어 위치
     
     pygame.init() # 게임 초기화
     
@@ -66,6 +66,11 @@ def a1(floor,position): # 플레이어의 초기 x,y 위치 / 층 수 / 리스�
     
     player = pygame.image.load("player.png") # 플레이어
     boxs[position] = 'player'
+    
+    hp = cls_text_create("Hp :",hp,100,20)
+    ex = cls_text_create("Ex :",ex,200,20)
+    gold = cls_text_create("gold :",gold,300,20)
+    stage = cls_text_create("stage :",1,400,20)
     
     # 루프
     running = True
@@ -84,8 +89,9 @@ def a1(floor,position): # 플레이어의 초기 x,y 위치 / 층 수 / 리스�
                     position += 7
                     if position >= len(boxs):
                         position -= 7 
-                    
+                        
                     else :
+                        pygame.quit()
                         return position
                         
                 if event.key == pygame.K_d: 
@@ -93,7 +99,9 @@ def a1(floor,position): # 플레이어의 초기 x,y 위치 / 층 수 / 리스�
                     position += 1
                     if position >= len(boxs):
                         position -= 1 
+                        
                     else :
+                        pygame.quit()
                         return position
                         
           #  if event.type == pygame.MOUSEBUTTONDOWN: # 마우스의 어떤 버튼을 눌렀을때
@@ -105,7 +113,10 @@ def a1(floor,position): # 플레이어의 초기 x,y 위치 / 층 수 / 리스�
             
         # 이미지 그리기 
         screen.blit(back,(0,0)) # 바탕화면
-        
+        hp.screen(screen)
+        ex.screen(screen)
+        gold.screen(screen)
+        stage.screen(screen)
         # 박스들 
         for i in range(len(boxs)):
             if i == floor:
@@ -134,8 +145,10 @@ def a1(floor,position): # 플레이어의 초기 x,y 위치 / 층 수 / 리스�
         
     # 초기화
     pygame.quit()                                                                    
+    
 
-class character:
+
+class cls_character:
     def __init__(self,img,name,x,y,hp,damage):
         self.img = pygame.image.load(img)
         self.name = name
@@ -152,19 +165,38 @@ class character:
         self.font = pygame.font.SysFont(None,30)
         self.hp_img = self.font.render(str(self.hp),True,self.BLACK)
         self.name_img = self.font.render(str(self.name),True,self.BLACK)
-
         
     def screen(self,screen):
         screen.blit(self.img,(self.x,self.y))
         screen.blit(self.hp_img,(self.x+80,self.y+315))
         screen.blit(self.name_img,(self.x+20,self.y+315))
         
-    def hpm(self,hp):
+    def hp_change(self,hp):
         self.hp -= hp
         self.hp_img = self.font.render(str(self.hp),True,self.BLACK)
         
+class cls_text_create:
+    def __init__(self,name,text,x,y):
+        
+        self.RED = (255,0,0)
+        self.BLUE = (0, 0, 255)
+        self.WHITE = (255,255,255)
+        self.BLACK = (0,0,0)
+        self.font = pygame.font.SysFont(None,30)
+        
+        self.name = name
+        self.text = text
+        self.text_img = self.font.render(self.name + str(self.text),True,self.BLACK)
     
-def a2(hp):
+        self.x = x
+        self.y = y
+        
+        
+    def screen(self,screen):
+        screen.blit(self.text_img,(self.x,self.y))
+        
+
+def fn_fight(hp,ex,gold):
     pygame.init()
     screen_width =800
     screen_height = 800
@@ -172,8 +204,11 @@ def a2(hp):
     
     back = pygame.image.load("back_ground_2.png")
     
-    player = character("game_player.png","ban",50,150,hp,20)
-    woulf = character("cat.png","woulf",550,150,100,10)
+    player = cls_character("game_player.png","ban",50,150,hp,20)
+    woulf = cls_character("cat.png","woulf",550,150,100,10)
+    
+    ex = cls_text_create("Ex :",ex,100,20)
+    gold = cls_text_create("gold :",gold,200,20)
     
     ba = pygame.image.load("ba.png")
     ba_x = 75
@@ -211,7 +246,6 @@ def a2(hp):
         
         t += 1 
         if t >= 60 :
-            print(Time)
             Time += 1
             t = 0
         
@@ -248,19 +282,19 @@ def a2(hp):
                     
                 if event.key == pygame.K_SPACE:
                     if sword == sword_up and sword_x_pos + 25 >= green_position and sword_x_pos + 25  <= green_position + 50:
-                        woulf.hpm(player.damage)
+                        woulf.hp_change(player.damage)
                         green_position = random.randint(ba_x + 8 ,ba_x + 100)
                         
                     if sword == sword_down and sword_x_pos + 25 >= yellow_position and sword_x_pos + 25  <= yellow_position + 50:
-                        woulf.hpm(player.damage)
+                        woulf.hp_change(player.damage)
                         yellow_position = random.randint(ba_x + 8 ,ba_x + 100)
                         
                     if sword == sword_left and sword_y_pos + 25 >= red_position and sword_y_pos + 25  <= red_position + 50:
-                        woulf.hpm(player.damage)
+                        woulf.hp_change(player.damage)
                         red_position = random.randint(ba_y + 8 ,ba_y + 100)
                         
                     if sword == sword_right and sword_y_pos + 25 >= blue_position and sword_y_pos + 25  <= blue_position + 50:
-                        woulf.hpm(player.damage)
+                        woulf.hp_change(player.damage)
                         blue_position = random.randint(ba_y + 8 ,ba_y + 100)
     
                    
@@ -284,7 +318,7 @@ def a2(hp):
         
         if Time >= 5:
             Time = 0 
-            player.hpm(woulf.damage)
+            player.hp_change(woulf.damage)
         
         if woulf.hp <= 0 :
             pygame.quit()
@@ -298,6 +332,8 @@ def a2(hp):
         
         player.screen(screen)
         woulf.screen(screen)
+        gold.screen(screen)
+        ex.screen(screen)
         
         screen.blit(ba,(ba_x,ba_y))
         
@@ -313,7 +349,7 @@ def a2(hp):
     pygame.quit()
    
 if __name__ == "__main__":
-    running = no_name()
+    running = fn_start()
     
     # 박스리스트
     boxs = ['-'] * 49
@@ -332,13 +368,19 @@ if __name__ == "__main__":
             
     inv = {"gold" : 0,"ex" : 0}
     hp = 100
-    
+    gold = 0
+    ex = 0
+    print(position,"0")
     # 루프
     while running:
-        position = a1(floor,position)
-
+        print(position,"1")
+        position = fn_main(floor,position,hp,inv["ex"],inv["gold"])
+        print(position,"2")
+        
+        if position == None :
+            break
         if boxs[position] == 'enemy':
-            gold,ex,hp = a2(hp)
+            gold,ex,hp = fn_fight(hp,inv["ex"],inv["gold"])
             
             inv["gold"] += gold
             inv["ex"] += ex
@@ -360,6 +402,8 @@ if __name__ == "__main__":
                 print("아무 일도 없습니다")
         elif boxs[position] == 'bose':
             print("업데이트 준비중 입니다")
+        
+        
         if hp <= 0:
                 break       
                 print("게임 오버")
