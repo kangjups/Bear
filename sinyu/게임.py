@@ -35,11 +35,10 @@ class cls_card:
         if self.count >= 60 :
             self.card_time += 1
             self.count = 0
-            
+    
+     
     def screen(self,screen):
         screen.blit(self.font.render(str(self.card_time),True,self.BLACK),(self.x,self.y))
-
-
 
 def fn_start():
     pygame.init()
@@ -91,11 +90,15 @@ def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / �
     screen_height = 800
     screen = pygame.display.set_mode((screen_width, screen_height))
     
+    img = 1
+    
     # 이미지 불러오기 
     back = pygame.image.load("back_ground_1.png") # 바탕화면
     event_ = pygame.image.load("event.png") # 이벤트 
     enemy = pygame.image.load("enemy.png") # 적 
     bose = pygame.image.load("bose.png") # 보스
+    
+    bag = pygame.image.load("bag.png")
     
     player = pygame.image.load("player.png") # 플레이어
     boxs[position] = 'player'
@@ -103,22 +106,23 @@ def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / �
     hp = cls_text_create("Hp :",hp,100,20)
     ex = cls_text_create("Ex :",ex,200,20)
     gold = cls_text_create("gold :",gold,300,20)
-    stage = cls_text_create("stage :",1,400,20)
+    stage = cls_text_create("stage :",position,400,20)
     
-    card_sword = cls_card("소드 타격.png","card_sword",3,4,"red","red","red")
-    card_defending = cls_card("수비.png","card_sword",3,4,"red","red","green")
-    card_arrow = cls_card("애로우.png","card_sword",3,4,"red","green","green")
-    card_search = cls_card("탐색.png","card_sword",3,4,"red","green","red")
-    card_bomb = cls_card("폭탄 펑!.png","card_sword",3,4,"red","green","yellow")
+    card_sword = cls_card("소드 타격.png","card_sword",1,4,"red","red","red")
+    card_defending = cls_card("수비.png","card_sword",2,4,"red","red","green")
+    card_arrow = cls_card("애로우.png","card_sword",2,6,"red","green","green")
+    card_search = cls_card("탐색.png","card_sword",1,1,"red","green","red")
+    card_bomb = cls_card("폭탄 펑!.png","card_sword",3,8,"red","green","yellow")
     
-    #all_cards = ["card_sword","card_defending","card_arrow","card_search","card_bomb"]
-   # my_cards = ["card_sword","card_defending","card_arrow","card_search"]
+    all_cards = [card_sword,card_defending,card_arrow,card_search,card_bomb]
+    my_cards = [card_sword,card_defending,card_arrow,card_search]
     
-    card_1 =  card_sword
-    card_2 = card_defending
-    card_3 = card_arrow
-    card_4 = card_search
+    card_1 = my_cards[0]
+    card_2 = my_cards[1]
+    card_3 = my_cards[2]
+    card_4 = my_cards[3]
     
+    test_box = pygame.image.load("test_box.png")
     # 루프
     running = True
     while running:
@@ -151,42 +155,59 @@ def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / �
                         pygame.quit()
                         return position,card_1,card_2,card_3,card_4
                         
-          #  if event.type == pygame.MOUSEBUTTONDOWN: # 마우스의 어떤 버튼을 눌렀을때
-              #  if event.button == 1:  # 마우스 왼쪽 클릭시
-                 #   x, y = pygame.mouse.get_pos()
-                    
-          #  if event.type == pygame.MOUSEBUTTONUP:
-           #     pass
+            if event.type == pygame.MOUSEBUTTONDOWN: # 마우스의 어떤 버튼을 눌렀을때
+                if event.button == 1:  # 마우스 왼쪽 클릭시
+                    x, y = pygame.mouse.get_pos()
+            
+                    if x > 700 and x < 800 and y > 700 and y < 800:
+                        img = 2
+                        
+                    if x > 0 and x < 100 and y > 700 and y < 800:
+                        img = 1
+            if event.type == pygame.MOUSEBUTTONUP:
+                pass
             
         # 이미지 그리기 
-        screen.blit(back,(0,0)) # 바탕화면
-        hp.screen(screen)
-        ex.screen(screen)
-        gold.screen(screen)
-        stage.screen(screen)
-        # 박스들 
-        for i in range(len(boxs)):
-            if i == floor:
-                floor += 7
-            if i < floor :
-                a = 80*(i-(floor-7)) + 120  # 길이 
-                b = 800-(80*(floor/7)) -120 # 높이 
-             
-                if boxs[i] == 'enemy':
-                    screen.blit(enemy,(a,b))
-                    
-                elif boxs[i] == 'event_':
-                    screen.blit(event_,(a,b))
-                    
-                elif boxs[i] == 'bose':
-                    screen.blit(bose,(a,b))
-                    
-                elif boxs[i] == 'player':
-                    screen.blit(player,(a,b))
-                    
-            if i == len(boxs)-1:
-                floor = 7
-        
+        if img == 1 :
+            screen.blit(back,(0,0)) # 바탕화면
+            hp.screen(screen)
+            ex.screen(screen)
+            gold.screen(screen)
+            stage.screen(screen)
+            # 박스들 
+            for i in range(len(boxs)):
+                if i == floor:
+                    floor += 7
+                if i < floor :
+                    a = 80*(i-(floor-7)) + 120  # 길이 
+                    b = 800-(80*(floor/7)) -120 # 높이 
+                 
+                    if boxs[i] == 'enemy':
+                        screen.blit(enemy,(a,b))
+                        
+                    elif boxs[i] == 'event_':
+                        screen.blit(event_,(a,b))
+                        
+                    elif boxs[i] == 'bose':
+                        screen.blit(bose,(a,b))
+                        
+                    elif boxs[i] == 'player':
+                        screen.blit(player,(a,b))
+                        
+                if i == len(boxs)-1:
+                    floor = 7
+        if img == 2:
+            screen.blit(bag,(0,0))
+            for i in range(len(my_cards)):
+                #screen.blit(all_cards[i].img,(50+(200*i),100))
+                screen.blit(test_box,(50+(200*i),100))
+            for i in range(len(all_cards)) :
+                #screen.blit(all_cards[i].img,(50+(200*i),400))
+                screen.blit(test_box,(50+(200*i),100))
+            
+            
+            
+            
         # 업데이트
         pygame.display.update()
         
@@ -244,7 +265,7 @@ class cls_text_create:
     def screen(self,screen):
         screen.blit(self.text_img,(self.x,self.y))
     
-    def text_change(self,text):
+    def text_change(self):
         #self.text_img = self.font.render(self.name + str(self.text),True,self.BLACK)
         self.text_img = self.font.render(str(self.text),True,self.BLACK)
 
@@ -265,7 +286,7 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
     
     ex = cls_text_create("Ex :",ex,110,23)
     gold = cls_text_create("gold :",gold,280,23)
-    energy = cls_text_create("energy :",energy,50,ba_y + 170)
+    energy = cls_text_create("energy :",energy,150,ba_y + 167)
     max_energy = cls_text_create("energy :",energy,50,ba_y + 170)    
     
     sword_up = pygame.image.load("sword.png")
@@ -306,11 +327,11 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
     while running:
         
         t += 1 
-        if t >= 460 :
+        if t >= 260 :
             Time += 0
             if energy.text < 4:    
                 energy.text += 1
-                energy.text_change(energy.text)
+                energy.text_change()
             t = 0
         
         for event in pygame.event.get():
@@ -387,31 +408,40 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
         
         if len(balls) >= 3:
             player.re_img("man_1.png")
-            #ball_time += 1
-            
-            #if ball_time >= 25:
-            print("마지카 매법")
-            
-            if balls[0] == card_1.head and balls[1] == card_1.body and balls[2] == card_1.tail and energy.text > card_1.energy:                  
+            if balls[0] == card_1.head and balls[1] == card_1.body and balls[2] == card_1.tail and energy.text >= card_1.energy:    
+                print(energy.text,card_1.energy)
                 energy.text -= card_1.energy
+                #energy.text_change()
                 woulf.hp_change(player.damage+card_1.damage)
-                
-            elif balls[0] == card_2.head and balls[1] == card_2.body and balls[2] == card_2.tail and energy.text > card_2.energy :                  
+                print(card_1.name)
+                    
+            elif balls[0] == card_2.head and balls[1] == card_2.body and balls[2] == card_2.tail and energy.text >= card_2.energy :                  
+                print(energy.text,card_2.energy)
                 energy.text -= card_2.energy
+                #energy.text_change()
                 woulf.hp_change(player.damage+card_2.damage)
+                print(card_2.name)
                 
-            elif balls[0] == card_3.head and balls[1] == card_3.body and balls[2] == card_3.tail and energy.text > card_3.energy :                  
+            elif balls[0] == card_3.head and balls[1] == card_3.body and balls[2] == card_3.tail and energy.text >= card_3.energy :                  
                 energy.text -= card_3.energy
+               # energy.text_change
                 woulf.hp_change(player.damage+card_3.damage)
+                print(card_3.name)
                 
-            elif balls[0] == card_4.head and balls[1] == card_4.body and balls[2] == card_4.tail and energy.text > card_4.energy :                  
+            elif balls[0] == card_4.head and balls[1] == card_4.body and balls[2] == card_4.tail and energy.text >= card_4.energy :                  
                 energy.text -= card_4.energy
+               # energy.text_change
                 woulf.hp_change(player.damage+card_4.damage)
-                
-            player.re_img("man_0.png")
+                print(card_4.name)
+            energy.text_change()
             balls.clear()
-               # ball_time = 0
-                
+        
+        ball_time += 1
+        
+        if ball_time >= 45:
+            player.re_img("man_0.png")
+            ball_time = 0
+            
         if Time >= 5:
             Time = 0 
             player.hp_change(woulf.damage)
