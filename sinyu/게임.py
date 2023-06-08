@@ -9,8 +9,9 @@ import pygame
 import random
 # Head, body, tail
 class cls_card:
-    def __init__(self,img,name,energy,damage,head,body,tail):
+    def __init__(self,img,mp3,name,energy,damage,head,body,tail):
         self.img = pygame.image.load(img)
+        self.sound = pygame.mixer.Sound(mp3)
         self.name = name
         self.energy = energy
         self.damage = damage
@@ -20,21 +21,12 @@ class cls_card:
         self.body = body
         self.tail = tail
         
-        self.count = 0
-        self.card_time = 0
-        
         self.RED = (255,0,0)
         self.BLUE = (0, 0, 255)
         self.WHITE = (255,255,255)
         self.BLACK = (0,0,0)
         
         self.font = pygame.font.SysFont(None,30)
-     
-    def time(self):
-        self.count += 1
-        if self.count >= 60 :
-            self.card_time += 1
-            self.count = 0
     
      
     def screen(self,screen):
@@ -47,6 +39,9 @@ def fn_start():
     screen = pygame.display.set_mode((screen_width, screen_height))
     #pygame.display.set_caption("school")
     background = pygame.image.load("back_ground_0.png")
+    main_sound = pygame.mixer.Sound("시작 음악.mp3")
+    main_sound.set_volume(0.8)
+    main_sound.play(-1)
     
     running = True
     while running:
@@ -89,6 +84,9 @@ def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / �
     screen_width = 800
     screen_height = 800
     screen = pygame.display.set_mode((screen_width, screen_height))
+    main_sound = pygame.mixer.Sound("메인 음악.mp3")
+    main_sound.set_volume(0.4)
+    main_sound.play(-1)
     
     img = 1
     
@@ -103,16 +101,15 @@ def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / �
     player = pygame.image.load("player.png") # 플레이어
     boxs[position] = 'player'
     
-    hp = cls_text_create("Hp :",hp,100,20)
-    ex = cls_text_create("Ex :",ex,200,20)
-    gold = cls_text_create("gold :",gold,300,20)
-    stage = cls_text_create("stage :",position,400,20)
+    ex = cls_text_create("Ex :",ex,112,20)
+    hp = cls_text_create("Hp :",hp,270,20)
+    gold = cls_text_create("gold :",gold,445,20)
     
-    card_sword = cls_card("소드 타격.png","card_sword",1,4,"red","red","red")
-    card_defending = cls_card("수비.png","card_sword",2,4,"red","red","green")
-    card_arrow = cls_card("애로우.png","card_sword",2,6,"red","green","green")
-    card_search = cls_card("탐색.png","card_sword",1,1,"red","green","red")
-    card_bomb = cls_card("폭탄 펑!.png","card_sword",3,8,"red","green","yellow")
+    card_sword = cls_card("소드 타격.png","소드 타격.mp3","card_sword",1,4,"red","red","red")
+    card_defending = cls_card("수비.png","pop.mp3","card_sword",2,4,"red","red","green")
+    card_arrow = cls_card("애로우.png","애로우.mp3","card_sword",2,6,"red","green","green")
+    card_search = cls_card("탐색.png","pop.mp3","card_sword",1,1,"red","green","red")
+    card_bomb = cls_card("폭탄 펑!.png","pop.mp3","card_sword",3,8,"red","green","yellow")
     
     all_cards = [card_sword,card_defending,card_arrow,card_search,card_bomb]
     my_cards = [card_sword,card_defending,card_arrow,card_search]
@@ -131,7 +128,7 @@ def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / �
             if event.type == pygame.QUIT:
                 running = False 
     
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and img == 1 :
                 if event.key == pygame.K_p: 
                     running = False
                 
@@ -169,11 +166,13 @@ def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / �
             
         # 이미지 그리기 
         if img == 1 :
+            
             screen.blit(back,(0,0)) # 바탕화면
             hp.screen(screen)
             ex.screen(screen)
             gold.screen(screen)
-            stage.screen(screen)
+            
+            
             # 박스들 
             for i in range(len(boxs)):
                 if i == floor:
@@ -204,10 +203,10 @@ def fn_main(floor,position,hp,ex,gold): # 플레이어의 초기 x,y 위치 / �
             for i in range(len(all_cards)) :
                 #screen.blit(all_cards[i].img,(50+(200*i),400))
                 screen.blit(test_box,(50+(200*i),100))
-            
-            
-            
-            
+        
+        if img == 3:
+            back = pygame.image.load("back_ground_1.png")
+        
         # 업데이트
         pygame.display.update()
         
@@ -225,6 +224,8 @@ class cls_character:
         self.hp = hp
         self.damage = damage
         
+        self.count = 0
+        
         self.RED = (255,0,0)
         self.BLUE = (0, 0, 255)
         self.WHITE = (255,255,255)
@@ -233,7 +234,15 @@ class cls_character:
         self.font = pygame.font.SysFont(None,30)
         self.hp_img = self.font.render(str(self.hp),True,self.BLACK)
         self.name_img = self.font.render(str(self.name),True,self.BLACK)
-        
+    
+    def time(self):
+        self.count += 1
+        if self.count >= 540 :
+            
+            self.count = 0
+            return True
+        else :
+            return False
     def re_img(self,img):
         self.img = pygame.image.load(img)
         
@@ -253,7 +262,7 @@ class cls_text_create:
         self.BLUE = (0, 0, 255)
         self.WHITE = (255,255,255)
         self.BLACK = (0,0,0)
-        self.font = pygame.font.SysFont(None,45)
+        self.font = pygame.font.SysFont(None,40)
         
         self.name = name
         self.text = text
@@ -271,23 +280,32 @@ class cls_text_create:
 
 def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
     pygame.init()
-    screen_width =800
-    screen_height = 800
+    
+    screen_width = 800
+    screen_height = 500
     screen = pygame.display.set_mode((screen_width, screen_height))
+    
+    main_sound = pygame.mixer.Sound("전투 음악.mp3")
+    main_sound.set_volume(0.3)
+    main_sound.play(-1)
     
     back = pygame.image.load("back.png")
     
-    player = cls_character("man_0.png","ban",280,300,hp,20)
-    woulf = cls_character("nemo_0.png","nemo",580,300,100,10)
+    player = cls_character("man_0.png","ban",180,100,hp,20)
+    woulf = cls_character("nemo_0.png","nemo",540,100,100,4)
+    
+    monster_sound = pygame.mixer.Sound("monster.mp3")
+    monster_sound.set_volume(0.2)
     
     ba = pygame.image.load("ba.png")
     ba_x = 50
-    ba_y = 300
+    ba_y = 325
+    ba_sound = pygame.mixer.Sound("룰렛 소리.mp3")
     
-    ex = cls_text_create("Ex :",ex,110,23)
-    gold = cls_text_create("gold :",gold,280,23)
-    energy = cls_text_create("energy :",energy,150,ba_y + 167)
-    max_energy = cls_text_create("energy :",energy,50,ba_y + 170)    
+    
+    ex = cls_text_create("Ex :",ex,75,18)
+    gold = cls_text_create("gold :",gold,205,18)
+    energy = cls_text_create("energy :",energy,39,245)  
     
     sword_up = pygame.image.load("sword.png")
     sword_down = pygame.image.load("sword_down.png")
@@ -298,37 +316,38 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
     
     sword_x_pos = ba_x
     sword_y_pos = ba_y - 12
-    sword_speed = 3
+    sword_speed = 2
     
     green =  pygame.image.load("green.png")
-    green_position = random.randint(ba_x + 8 ,ba_x + 100)
+    up_down_random = [60,86,112,138,164] #26   
+    green_position = random.choice(up_down_random)
     
     yellow =  pygame.image.load("yellow.png")
-    yellow_position = random.randint(ba_x + 8 ,ba_x + 100)
+    yellow_position = random.choice(up_down_random)
     
     red =  pygame.image.load("red.png")
-    red_position = random.randint(ba_y + 8 ,ba_y + 100)
+    right_left_random = [10+ba_y,36+ba_y,62+ba_y,88+ba_y,114+ba_y]
+    red_position = random.choice(right_left_random)
     
     blue =  pygame.image.load("blue.png")
-    blue_position = random.randint(ba_y + 8 ,ba_y + 100)
+    blue_position = random.choice(right_left_random)
     
     red_ball = pygame.image.load("red_ball.png")
     blue_ball = pygame.image.load("blue_ball.png")
     green_ball = pygame.image.load("green_ball.png")
+    yellow_ball = pygame.image.load("yellow_ball.png")
     
     balls = []
     
-    
-    Time = 0
     t = 0
     ball_time = 0
     
     running = True
     while running:
         
+      
         t += 1 
-        if t >= 260 :
-            Time += 0
+        if t >= 280 :
             if energy.text < 4:    
                 energy.text += 1
                 energy.text_change()
@@ -368,23 +387,32 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
                 if event.key == pygame.K_SPACE:
                     if sword == sword_up and sword_x_pos + 25 >= green_position and sword_x_pos + 25  <= green_position + 50:
                         balls.append("green")
-                        green_position = random.randint(ba_x + 8 ,ba_x + 100)
+                        ba_sound.play()
+                        
+                        up_down_random = [60,86,112,138,164]
+                        green_position = random.choice(up_down_random)
                         
                     elif sword == sword_down and sword_x_pos + 25 >= yellow_position and sword_x_pos + 25  <= yellow_position + 50:
-                        #balls.append(1)
-                        yellow_position = random.randint(ba_x + 8 ,ba_x + 100)
+                        balls.append("yellow")
+                        ba_sound.play()
+                        
+                        up_down_random = [60,86,112,138,164]
+                        yellow_position = random.choice(up_down_random)
                         
                     elif sword == sword_left and sword_y_pos + 25 >= red_position and sword_y_pos + 25  <= red_position + 50:
-                        #woulf.hp_change(player.damage)
                         balls.append("red")
-                        red_position = random.randint(ba_y + 8 ,ba_y + 100)
+                        ba_sound.play()
+                        right_left_random = [10+ba_y,36+ba_y,62+ba_y,88+ba_y,114+ba_y]
+                        red_position = random.choice(right_left_random )
                         
                     elif sword == sword_right and sword_y_pos + 25 >= blue_position and sword_y_pos + 25  <= blue_position + 50:
                         balls.append("blue")
-                        blue_position = random.randint(ba_y + 8 ,ba_y + 100)
+                        ba_sound.play()
+                        right_left_random = [10+ba_y,36+ba_y,62+ba_y,88+ba_y,114+ba_y]
+                        blue_position = random.choice(right_left_random )
                     
                     else :
-                        print("스킬 실패")
+                        print("스킬 실패")         
                         balls.clear()
                         
                    
@@ -409,30 +437,27 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
         if len(balls) >= 3:
             player.re_img("man_1.png")
             if balls[0] == card_1.head and balls[1] == card_1.body and balls[2] == card_1.tail and energy.text >= card_1.energy:    
-                print(energy.text,card_1.energy)
+                card_1.sound.play()
                 energy.text -= card_1.energy
-                #energy.text_change()
                 woulf.hp_change(player.damage+card_1.damage)
-                print(card_1.name)
-                    
+                
             elif balls[0] == card_2.head and balls[1] == card_2.body and balls[2] == card_2.tail and energy.text >= card_2.energy :                  
-                print(energy.text,card_2.energy)
+                card_2.sound.play()
                 energy.text -= card_2.energy
-                #energy.text_change()
                 woulf.hp_change(player.damage+card_2.damage)
-                print(card_2.name)
+              
                 
             elif balls[0] == card_3.head and balls[1] == card_3.body and balls[2] == card_3.tail and energy.text >= card_3.energy :                  
                 energy.text -= card_3.energy
-               # energy.text_change
+                card_3.sound.play()
                 woulf.hp_change(player.damage+card_3.damage)
-                print(card_3.name)
+          
                 
             elif balls[0] == card_4.head and balls[1] == card_4.body and balls[2] == card_4.tail and energy.text >= card_4.energy :                  
                 energy.text -= card_4.energy
-               # energy.text_change
+                card_4.sound.play()
                 woulf.hp_change(player.damage+card_4.damage)
-                print(card_4.name)
+          
             energy.text_change()
             balls.clear()
         
@@ -442,9 +467,15 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
             player.re_img("man_0.png")
             ball_time = 0
             
-        if Time >= 5:
-            Time = 0 
+        if woulf.time() == False and  woulf.count >= 300 :
+            woulf.img = pygame.image.load("nemo_0.png")
+            monster_sound.stop()
+    
+        if woulf.time() == True  :
+            monster_sound.play()
+            woulf.img = pygame.image.load("nemo_1.png")
             player.hp_change(woulf.damage)
+    
         
         if woulf.hp <= 0 :
             pygame.quit()
@@ -458,6 +489,7 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
         
         player.screen(screen)
         woulf.screen(screen)
+        
         energy.screen(screen)
         gold.screen(screen)
         ex.screen(screen)
@@ -468,6 +500,9 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
             
             if balls[i] == "green" :
                 screen.blit(green_ball,(ba_x + 20 + (i*40) ,ba_y + 105))
+              
+            if balls[i] == "yellow" :
+                screen.blit(yellow_ball,(ba_x + 20 + (i*40) ,ba_y + 105))
                 
             if balls[i] == "blue" :
                 screen.blit(blue_ball,(ba_x + 20 + (i*40) ,ba_y + 105))
@@ -483,10 +518,10 @@ def fn_fight(hp,energy,ex,gold,card_1,card_2,card_3,card_4):
         
         screen.blit(sword,(sword_x_pos,sword_y_pos))
         
-        screen.blit(card_1.img,(29,600))
-        screen.blit(card_2.img,(229,600))
-        screen.blit(card_3.img,(429,600))
-        screen.blit(card_4.img,(629,600))
+        screen.blit(card_1.img,(300,350))
+        screen.blit(card_2.img,(420,350))
+        screen.blit(card_3.img,(540,350))
+        screen.blit(card_4.img,(660,350))
         
         pygame.display.update()
     
@@ -517,10 +552,7 @@ if __name__ == "__main__":
     print(position,"0")
     # 루프
     while running:
-       
         position,card_1,card_2,card_3,card_4 = fn_main(floor,position,hp,inv["ex"],inv["gold"])
-       
-        
         if position == None :
             break
         if boxs[position] == 'enemy':
@@ -534,19 +566,21 @@ if __name__ == "__main__":
             
             if e == 0:
                 print("악마가 나타나 당신에게 말을 겁니다... 넌 무엇을 위해 싸우지? : ")
-                e = int(input("정의를 위해 싸운다(0)/욕망을 위해 싸운다(1)"))
-                if e == 0:
-                    print("악마는 당신의 대답을 마음에 들어하지 않습니다... 악마에게 공격을 당하여 -5의 피해를 입습니다")
-                    hp -= 5
-                if e == 1:
-                    print("악마는 당신의 대답을 마음에 들어 합니다... 악마가 당시에게 돈을 줍니다")
-                    inv["gold"] += 5
+                inv["gold"] += 4
+                hp += 5
+                #e = int(input("정의를 위해 싸운다(0)/욕망을 위해 싸운다(1)"))
+                #if e == 0:
+                 #   print("악마는 당신의 대답을 마음에 들어하지 않습니다... 악마에게 공격을 당하여 -5의 피해를 입습니다")
+               #     hp -= 5
+               # if e == 1:
+                #    print("악마는 당신의 대답을 마음에 들어 합니다... 악마가 당시에게 돈을 줍니다")
+                  #  inv["gold"] += 5
                     
             if e == 1:
-                print("아무 일도 없습니다")
+                print("체력이 회복 됩니다")
+                hp += 27
         elif boxs[position] == 'bose':
             print("업데이트 준비중 입니다")
-        
         
         if hp <= 0:
                 break       
